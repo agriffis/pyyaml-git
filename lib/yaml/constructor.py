@@ -59,8 +59,11 @@ class BaseConstructor(object):
             old_deep = self.deep_construct
             self.deep_construct = True
         if node in self.recursive_objects:
-            raise ConstructorError(None, None,
+            obj = self.recursive_objects[node]
+            if obj is None :
+                raise ConstructorError(None, None,
                     "found unconstructable recursive node", node.start_mark)
+            return obj
         self.recursive_objects[node] = None
         constructor = None
         tag_suffix = None
@@ -92,6 +95,7 @@ class BaseConstructor(object):
             generator = data
             data = generator.next()
             if self.deep_construct:
+                self.recursive_objects[node] = data
                 for dummy in generator:
                     pass
             else:
