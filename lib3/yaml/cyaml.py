@@ -13,23 +13,23 @@ from .resolver import *
 
 class CBaseLoader(CParser, BaseConstructor, BaseResolver):
 
-    def __init__(self, stream):
+    def __init__(self, stream, tz_aware_datetimes=False):
         CParser.__init__(self, stream)
         BaseConstructor.__init__(self)
         BaseResolver.__init__(self)
 
 class CSafeLoader(CParser, SafeConstructor, Resolver):
 
-    def __init__(self, stream):
+    def __init__(self, stream, tz_aware_datetimes=False):
         CParser.__init__(self, stream)
-        SafeConstructor.__init__(self)
+        SafeConstructor.__init__(self, tz_aware_datetimes=tz_aware_datetimes)
         Resolver.__init__(self)
 
 class CLoader(CParser, Constructor, Resolver):
 
-    def __init__(self, stream):
+    def __init__(self, stream, tz_aware_datetimes=False):
         CParser.__init__(self, stream)
-        Constructor.__init__(self)
+        Constructor.__init__(self, tz_aware_datetimes=tz_aware_datetimes)
         Resolver.__init__(self)
 
 class CBaseDumper(CEmitter, BaseRepresenter, BaseResolver):

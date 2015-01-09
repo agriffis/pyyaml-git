@@ -20,21 +20,21 @@ class BaseLoader(Reader, Scanner, Parser, Composer, BaseConstructor, BaseResolve
 
 class SafeLoader(Reader, Scanner, Parser, Composer, SafeConstructor, Resolver):
 
-    def __init__(self, stream):
+    def __init__(self, stream, tz_aware_datetimes=False):
         Reader.__init__(self, stream)
         Scanner.__init__(self)
         Parser.__init__(self)
         Composer.__init__(self)
-        SafeConstructor.__init__(self)
+        SafeConstructor.__init__(self, tz_aware_datetimes=tz_aware_datetimes)
         Resolver.__init__(self)
 
 class Loader(Reader, Scanner, Parser, Composer, Constructor, Resolver):
 
-    def __init__(self, stream):
+    def __init__(self, stream, tz_aware_datetimes=False):
         Reader.__init__(self, stream)
         Scanner.__init__(self)
         Parser.__init__(self)
         Composer.__init__(self)
-        Constructor.__init__(self)
+        Constructor.__init__(self, tz_aware_datetimes=tz_aware_datetimes)
         Resolver.__init__(self)
 

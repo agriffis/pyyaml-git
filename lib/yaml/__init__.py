@@ -61,44 +61,44 @@ def compose_all(stream, Loader=Loader):
     finally:
         loader.dispose()
 
-def load(stream, Loader=Loader):
+def load(stream, Loader=Loader, **kwargs):
     """
     Parse the first YAML document in a stream
     and produce the corresponding Python object.
     """
-    loader = Loader(stream)
+    loader = Loader(stream, **kwargs)
     try:
         return loader.get_single_data()
     finally:
         loader.dispose()
 
-def load_all(stream, Loader=Loader):
+def load_all(stream, Loader=Loader, **kwargs):
     """
     Parse all YAML documents in a stream
     and produce corresponding Python objects.
     """
-    loader = Loader(stream)
+    loader = Loader(stream, **kwargs)
     try:
         while loader.check_data():
             yield loader.get_data()
     finally:
         loader.dispose()
 
-def safe_load(stream):
+def safe_load(stream, **kwargs):
     """
     Parse the first YAML document in a stream
     and produce the corresponding Python object.
     Resolve only basic YAML tags.
     """
-    return load(stream, SafeLoader)
+    return load(stream, SafeLoader, **kwargs)
 
-def safe_load_all(stream):
+def safe_load_all(stream, **kwargs):
     """
     Parse all YAML documents in a stream
     and produce corresponding Python objects.
     Resolve only basic YAML tags.
     """
-    return load_all(stream, SafeLoader)
+    return load_all(stream, SafeLoader, **kwargs)
 
 def emit(events, stream=None, Dumper=Dumper,
         canonical=None, indent=None, width=None,

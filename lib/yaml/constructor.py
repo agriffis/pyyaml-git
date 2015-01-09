@@ -9,6 +9,25 @@ import datetime
 
 import binascii, re, sys, types
 
+class FixedOffset(datetime.tzinfo):
+    def __init__(self, delta, name):
+        self.delta = delta
+        self.name = name
+
+    def utcoffset(self, dt):
+        return self.delta
+
+    def tzname(self, dt):
+        return self.name
+
+    def dst(self, dt):
+        return datetime.timedelta(0)
+
+    def __repr__(self):
+        return '<%s %s>' % (self.__class__.__name__, self.name)
+
+UTC = FixedOffset(datetime.timedelta(0), 'UTC')
+
 class ConstructorError(MarkedYAMLError):
     pass
 
@@ -164,6 +183,10 @@ class BaseConstructor(object):
 
 class SafeConstructor(BaseConstructor):
 
+    def __init__(self, tz_aware_datetimes=False):
+        BaseConstructor.__init__(self)
+        self.tz_aware_datetimes = tz_aware_datetimes
+
     def construct_scalar(self, node):
         if isinstance(node, MappingNode):
             for key_node, value_node in node.value:
@@ -313,7 +336,10 @@ class SafeConstructor(BaseConstructor):
         month = int(values['month'])
         day = int(values['day'])
         if not values['hour']:
-            return datetime.date(year, month, day)
+            if self.tz_aware_datetimes:
+                return datetime.datetime(year, month, day, 0, 0, 0, tzinfo=UTC)
+            else:
+                return datetime.date(year, month, day)
         hour = int(values['hour'])
         minute = int(values['minute'])
         second = int(values['second'])
@@ -330,10 +356,24 @@ class SafeConstructor(BaseConstructor):
             delta = datetime.timedelta(hours=tz_hour, minutes=tz_minute)
             if values['tz_sign'] == '-':
                 delta = -delta
-        data = datetime.datetime(year, month, day, hour, minute, second, fraction)
-        if delta:
-            data -= delta
-        return data
+            if self.tz_aware_datetimes:
+                tz_name = '%s%02d:%02d' % (values['tz_sign'],
+                                           tz_hour, tz_minute)
+                return datetime.datetime(year, month, day,
+                                         hour, minute, second, fraction,
+                                         tzinfo=FixedOffset(delta, tz_name))
+            else:
+                return (datetime.datetime(year, month, day,
+                                          hour, minute, second, fraction) -
+                        delta)
+        else:
+            if self.tz_aware_datetimes:
+                return datetime.datetime(year, month, day,
+                                         hour, minute, second, fraction,
+                                         tzinfo=UTC)
+            else:
+                return datetime.datetime(year, month, day,
+                                         hour, minute, second, fraction)
 
     def construct_yaml_omap(self, node):
         # Note: we do not check for duplicate keys, because it's too
