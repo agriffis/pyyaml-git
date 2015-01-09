@@ -26,6 +26,9 @@ class FixedOffset(datetime.tzinfo):
     def __repr__(self):
         return '<%s %s>' % (self.__class__.__name__, self.name)
 
+    def __getinitargs__(self):
+        return self.delta, self.name
+
 UTC = FixedOffset(datetime.timedelta(0), 'UTC')
 
 class ConstructorError(MarkedYAMLError):
